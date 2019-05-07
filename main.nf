@@ -88,23 +88,11 @@ process clustering {
   script:
     """
     cat *.fasta > all.fasta
-    psi-cd-hit.pl -i all.fasta -o output -aL 0.7 -aS 0.7 -circle 1 -prog megablast -para ${params.cpus}
     psi-cd-hit.pl -i all.fasta -o output -prog blastn -para ${params.cpus} -c 0.6 -s "-evalue 10E-100 -max_target_seqs 100000 -qcov_hsp_perc 10 -max_hsps 10"
     grep ">" output > representatives.txt
     cp output output.fasta
     """
 }
-
-/*
-#psi-cd-hit.pl -i all.fasta -o output_blast_mods -prog blastn -para 8 -c 0.3 -s "-evalue 10E-100 -max_target_seqs 100000 -qcov_hsp_perc 10 -max_hsps 10"
-- cluster 100, small cluster test bestanden
-# problem sind die langen representatives im cluster
--> entweder -c0.3 langsam erhöhen
--> oder aL benutzen
-#"
--> das ist noch wessentlich besser. mach damit mal eine analyse mit 1.) sourmash 2.) kompletten workflow um zu sehen wie die tabelle aussieht
-
-*/
 
 process save_representatives {
     publishDir "${params.output}/representatives/${name}", mode: 'copy', pattern: "*.fasta"
