@@ -88,14 +88,14 @@ process clustering {
   script:
     """
     cat *.fasta > all.fasta
-    psi-cd-hit.pl -i all.fasta -o output -prog blastn -para ${params.cpus} -c 0.6 -s "-evalue 10E-100 -max_target_seqs 100000 -qcov_hsp_perc 10 -max_hsps 10"
+    psi-cd-hit.pl -i all.fasta -o output -aL 0.5 -prog blastn -para ${params.cpus} -c 0.6 -s "-evalue 10E-100 -max_target_seqs 100000 -qcov_hsp_perc 10 -max_hsps 10"
     grep ">" output > representatives.txt
     cp output output.fasta
     """
 }
 
 process save_representatives {
-    publishDir "${params.output}/representatives/${name}", mode: 'copy', pattern: "*.fasta"
+    publishDir "${params.output}/representatives/${id}", mode: 'copy', pattern: "*.fasta"
   input:
     set val(id), val(fasta) from clustering_multifastafile_ch.splitFasta( record: [id: true, seqString: true ])
                                                          .map { record -> tuple(record.id, record.seqString)}
