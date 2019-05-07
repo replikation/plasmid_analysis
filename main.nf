@@ -6,13 +6,15 @@ def helpMSG() {
 
     Usage:
 
-    nextflow run replikation/plasmid_analysis --input Accession_list.txt
+    nextflow run main.nf --input Accession_list.txt --cpus 8
 
     --input       a list of accession numbers, one accession number per line, no headers
                     e.g. do a 'cut -f2' on a blastn query with '-outfmt6'
 
     Options:
     --cpus        max cores [default $params.cpus]
+
+    Results are stored in cluster_results/
     """.stripIndent()
 }
 
@@ -28,7 +30,6 @@ Channel.fromPath(params.input)
 //accession_list.subscribe { println "Got: ${it}" }
 
 process download {
-    publishDir "${params.output}/genbank_files", mode: 'copy', pattern: "*.gb"
     maxForks 2
   input:
     val(line) from accession_list
@@ -61,13 +62,12 @@ process filter {
 }
 
 process getFasta {
+    publishDir "${params.output}/fasta_files_filtered/", mode: 'copy', pattern: "*.fasta"
     errorStrategy 'ignore'
-    publishDir "${params.output}/fasta", mode: 'copy', pattern: "${name}.fasta"
   input:
     set val(name), file(genbank) from filter_getFasta_ch
   output:
     file("${name}.fasta") optional true into getFasta_clustering_ch
-    //set val(name), file("${name}.fasta") optional true into filter_fasta_comb
   script:
     """
     seqret -sequence ${genbank} -sformat gb -outseq ${name}.fasta
@@ -88,14 +88,26 @@ process clustering {
   script:
     """
     cat *.fasta > all.fasta
-    psi-cd-hit.pl -i all.fasta -o output -aL 0.7 -circle 1 -prog megablast -para ${params.cpus}
+    psi-cd-hit.pl -i all.fasta -o output -aL 0.7 -aS 0.7 -circle 1 -prog megablast -para ${params.cpus}
+    psi-cd-hit.pl -i all.fasta -o output -prog blastn -para ${params.cpus} -c 0.6 -s "-evalue 10E-100 -max_target_seqs 100000 -qcov_hsp_perc 10 -max_hsps 10"
     grep ">" output > representatives.txt
     cp output output.fasta
     """
 }
 
+/*
+#psi-cd-hit.pl -i all.fasta -o output_blast_mods -prog blastn -para 8 -c 0.3 -s "-evalue 10E-100 -max_target_seqs 100000 -qcov_hsp_perc 10 -max_hsps 10"
+- cluster 100, small cluster test bestanden
+# problem sind die langen representatives im cluster
+-> entweder -c0.3 langsam erhöhen
+-> oder aL benutzen
+#"
+-> das ist noch wessentlich besser. mach damit mal eine analyse mit 1.) sourmash 2.) kompletten workflow um zu sehen wie die tabelle aussieht
+
+*/
+
 process save_representatives {
-    publishDir "${params.output}/representatives", mode: 'copy', pattern: "*.fasta"
+    publishDir "${params.output}/representatives/${name}", mode: 'copy', pattern: "*.fasta"
   input:
     set val(id), val(fasta) from clustering_multifastafile_ch.splitFasta( record: [id: true, seqString: true ])
                                                          .map { record -> tuple(record.id, record.seqString)}
@@ -128,7 +140,7 @@ process abricate {
 	  set val(name), file("*.tab") into annotation2_done_ch
   shell:
     """
-  	abricate !{fasta} --nopath --quiet --mincov 90 --db ncbi > ncbi.tab
+  	abricate !{fasta} --nopath --quiet --mincov 80 --db ncbi > ncbi.tab
     abricate !{fasta} --nopath --quiet --mincov 95 --db plasmidfinder > plasmidfinder.tab
     abricate !{fasta} --nopath --quiet --mincov 35 --db transposon > transposon.tab
     """
