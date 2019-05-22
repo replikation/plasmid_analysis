@@ -14,7 +14,7 @@ def helpMSG() {
     Options:
     --cpus        max cores [default $params.cpus]
 
-    Results are stored in cluster_results/
+    Results are stored in ${params.output}/
     """.stripIndent()
 }
 
@@ -76,21 +76,23 @@ process getFasta {
 
 process clustering {
     cpus = "${params.cpus}"
-    publishDir "${params.output}", mode: 'copy', pattern: "output.clstr"
+    publishDir "${params.output}", mode: 'copy', pattern: "representatives.clstr"
     publishDir "${params.output}", mode: 'copy', pattern: "representatives.txt"
-    publishDir "${params.output}", mode: 'copy', pattern: "output.fasta"
+    publishDir "${params.output}", mode: 'copy', pattern: "representatives.fasta"
   input:
     file '*.fasta' from getFasta_clustering_ch.collect()
   output:
-    file("output.clstr") into clustering_createChannel
-    file("representatives.txt") into name_list
-    file("output.fasta") into clustering_multifastafile_ch
+    file("representatives.clstr") into clustering_extract_groups_ch
+    file("representatives.txt") into name_list_done_ch
+    file("representatives.fasta") into clustering_multifastafile_ch
   script:
     """
     cat *.fasta > all.fasta
-    psi-cd-hit.pl -i all.fasta -o output -aL 0.5 -prog blastn -para ${params.cpus} -c 0.6 -s "-evalue 10E-100 -max_target_seqs 100000 -qcov_hsp_perc 10 -max_hsps 10"
+    psi-cd-hit.pl -i all.fasta -o output -aL 0.6 -prog blastn -para ${params.cpus} -c 0.6 -g 1 \
+    -s "-evalue 10E-100 -max_target_seqs 100000 -qcov_hsp_perc 10 -max_hsps 10"
     grep ">" output > representatives.txt
-    cp output output.fasta
+    mv output representatives.fasta
+    mv output.clstr representatives.clstr
     """
 }
 
@@ -108,15 +110,15 @@ process save_representatives {
 }
 
 process prokka {
-    publishDir "${params.output}/representatives/${name}", mode: 'copy', pattern: "prokka.gbk"
+    publishDir "${params.output}/representatives/${name}", mode: 'copy', pattern: "prokka.tsv"
   input:
     set val(name), file(fasta) from representatives_prokka_ch
   output:
-	  set val(name), file("prokka.gbk") into annotation_done_ch
+	  set val(name), file("prokka.tsv") into annotation_done_ch
   shell:
     """
     prokka --outdir output --prefix annotation !{fasta}
-    mv output/annotation.gbk prokka.gbk
+    mv output/annotation.tsv prokka.tsv
     """
 }
 
@@ -130,6 +132,6 @@ process abricate {
     """
   	abricate !{fasta} --nopath --quiet --mincov 80 --db ncbi > ncbi.tab
     abricate !{fasta} --nopath --quiet --mincov 95 --db plasmidfinder > plasmidfinder.tab
-    abricate !{fasta} --nopath --quiet --mincov 35 --db transposon > transposon.tab
+    abricate !{fasta} --nopath --quiet --mincov 60 --db transposon > transposon.tab
     """
 }

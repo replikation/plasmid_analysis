@@ -10,6 +10,7 @@ RUN conda config --add channels conda-forge
 RUN conda install abricate
 RUN abricate --check
 RUN abricate-get_db --db ncbi --force
+RUN abricate-get_db --db plasmidfinder --force
 RUN mkdir -p /conda/db/transposon
 COPY sequences /conda/db/transposon
 RUN abricate --setupdb

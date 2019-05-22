@@ -1,3 +1,6 @@
+#editor
+.vscode
+
 # some data aspects
 *fai  # fasta indices
 
@@ -32,6 +35,9 @@ work/
 .collection
 plasmid_metadata.csv
 cluster_results/
+summary/
+# no R scripts
+*.R
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
