@@ -9,7 +9,7 @@ def helpMSG() {
     nextflow run main.nf --input Accession_list.txt --cpus 8
 
     --input       a list of accession numbers, one accession number per line, no headers
-                    e.g. do a 'cut -f2' on a blastn query with '-outfmt6'
+                    e.g. 'cut -f2' on a blastn query with '-outfmt6'
 
     Options:
     --cpus        max cores [default $params.cpus]

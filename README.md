@@ -5,7 +5,6 @@
 
 * KPC plasmid clustering workflow with Nextflow
 * workflow is only tested and intended for KPC-plasmids
-* could work similar for other beta-lactamase resistance plasmids (untested)
 
 # Installation
 
@@ -14,31 +13,39 @@
 * [Nextflow](https://www.nextflow.io/index.html)
 * [Docker](https://docs.docker.com/install/)
 
-* a example installation for docker and Nextflow looks like this:
+**A example installation for Docker and Nextflow:**
 
 ```bash
 # NEXTFLOW
-# install java runtime for nextflow
-  # you can check if java is allready installed via 'java -version'
-  sudo apt install openjdk-11-jre
+# java runtime for nextflow, test if installed via 'java -version'
+  apt install openjdk-11-jre
 # install nextflow
   curl -s https://get.nextflow.io | bash
 # move 'nextflow' to a $PATH location, or add 'nextflow' to $PATH
-  sudo mv nextflow /usr/local/bin
+  mv nextflow /usr/local/bin
 
 # DOCKER
-# install via:
+# Install via https://docs.docker.com/install/ (most recent) or:
   apt install docker-ce
-  # or via https://docs.docker.com/install/ (most recent)
-# Add the docker group to $USER
+# Add docker group to $USER
   sudo usermod -a -G docker $USER
 # restart terminal or reboot if neccessary
 ```
 
 # Usage
 
+
+````bash
+nextflow run replikation/plasmid_analysis --input list_of_accession_numbers.txt
+````
+
+* reproduce the KPC clustering
+
 ```bash
-git clone https://github.com/replikation/plasmid_analysis.git && cd plasmid_analysis
+# clone the git and navigate into
+git clone https://github.com/replikation/plasmid_analysis.git
+cd plasmid_analysis
+# execute Nextflow using the Accessionlist of May
 nextflow run main.nf --input Accessionlist/Accessionlist_KPC_nt_archive_all_May_2019.txt --cpus 8      
 ```
 
@@ -48,11 +55,12 @@ nextflow run main.nf --input Accessionlist/Accessionlist_KPC_nt_archive_all_May_
   * no headers
 * results are stored in `cluster_results`
 
-+ a simplified result collection for KPC-plasmids can be used via `collect_results.sh`
++ a simplified result collection for KPC-plasmids can be used via `bash collect_results.sh`
 
 ## Resume
 
-* nextflow supports a resume function add `-resume` to the full nextflow command
+* nextflow can resume a run
+* add `-resume` to the last nextflow command
 
 ## help message
 

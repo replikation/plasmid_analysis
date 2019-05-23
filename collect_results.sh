@@ -57,7 +57,8 @@ echo "$representatives" | xargs -I% -P ${CPU} \
         echo "" >> $CSV_loc
       done
 
-echo "Results saved to '$CSV_loc'"
+echo " "
+echo "  Results saved to '$CSV_loc'"
 rm -fr .collection/
 
 # create R overview
@@ -109,7 +110,7 @@ tail -n+2 $CSV_loc | while IFS=$',' read group Acc len name year org Inc KPC bLa
       if grep -q "psi" <<< $prokres ; then psi=2; else psi=0; fi
       printf "psiA/B;$groupP;$psi;features;$tranP\n" >> $R_locP
       #Mercury resistance
-      if grep -w "mer[[:upper:]].." <<< $toxsearch ; then Mercuri=2; else Mercuri=0; fi
+      if grep -q "mer[[:upper:]].." <<< $toxsearch ; then Mercuri=2; else Mercuri=0; fi
       printf "Mercuric Res.;$groupP;$Mercuri;features;$tranP\n" >> $R_locP
       #Copper resistance
       if grep -q "cop[[:upper:]].." <<< $toxsearch ; then Copper=2; else Copper=0; fi
@@ -119,4 +120,4 @@ tail -n+2 $CSV_loc | while IFS=$',' read group Acc len name year org Inc KPC bLa
       printf "Arsenic Res.;$groupP;$Arsenic;features;$tranP\n" >> $R_locP
 done
 # rename CTX to CTX-M
-sed -i 's/CTX/CTX-M/g' $R_locP
+sed -i 's/CTX/CTX-M/g' $R_loc
