@@ -83,3 +83,7 @@ Results are stored in cluster_results/
 # Additional Information
 * Dockerfiles created for this workflow are located under `Dockerfiles/`
 * the `work` folder can be removed afterwards
+
+## prokka
+* prokka uses a ncbi dependency `tbl2asn` which may expire at some point [see here](https://github.com/tseemann/prokka/issues/139) or [here](https://github.com/tseemann/prokka/issues/215)
+  * this workflow will use prokka:latest instead to avoid this issue in the future
