@@ -16,5 +16,6 @@ Docker images are created from the following repositories:
 
 + [**cd-hit**](https://github.com/weizhongli/cdhit)
 + [**abricate**](https://github.com/tseemann/abricate)
++ [**prokka**](https://github.com/tseemann/prokka/)
 
 **Cite these tools if you use them**
