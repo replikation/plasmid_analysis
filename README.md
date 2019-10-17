@@ -1,9 +1,12 @@
 # KPC Plasmid analysis
-
+![](https://img.shields.io/badge/nextflow-19.07.0-brightgreen)
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
 ![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
 
-* KPC plasmid clustering workflow with Nextflow
+* this repository was used in this work:
+> Brandt, C. *et al.* Assessing genetic diversity and similarity of 435 KPC-carrying plasmids. *Scientific Reports* **9**, 11223 (2019) [https://doi.org/10.1038/s41598-019-47758-5](https://doi.org/10.1038/s41598-019-47758-5)
+
+* TLDR: KPC plasmid clustering workflow via Nextflow
 * workflow is only tested and intended for KPC-plasmids
 
 # Installation
@@ -59,7 +62,7 @@ nextflow run main.nf --input Accessionlist/Accessionlist_KPC_nt_archive_all_May_
 
 ## Resume
 
-* nextflow can resume a run
+* nextflow is able to resume a run
 * add `-resume` to the last nextflow command
 
 ## help message
@@ -86,4 +89,6 @@ Results are stored in cluster_results/
 
 ## prokka
 * prokka uses a ncbi dependency `tbl2asn` which may expire at some point [see here](https://github.com/tseemann/prokka/issues/139) or [here](https://github.com/tseemann/prokka/issues/215)
-  * this workflow will use prokka:latest instead to avoid this issue in the future
+  * this workflow will use prokka:latest instead of a fixed version to avoid this issue in the future
+
+
